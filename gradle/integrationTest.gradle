@@ -1,0 +1,38 @@
+sourceSets {
+  integrationTest {
+    kotlin {
+      compileClasspath += sourceSets.test.compileClasspath
+      runtimeClasspath += sourceSets.test.runtimeClasspath
+    }
+  }
+}
+
+configurations {
+  integrationTestImplementation.extendsFrom implementation
+  integrationTestRuntimeOnly.extendsFrom runtimeOnly
+}
+
+dependencies {
+  integrationTestImplementation sourceSets.test.output
+}
+
+idea {
+  module {
+    testSourceDirs += project.sourceSets.integrationTest.kotlin.srcDirs
+    testResourceDirs += project.sourceSets.integrationTest.resources.srcDirs
+  }
+}
+
+
+
+task integrationTest(type: Test) {
+  description = 'Runs integration tests.'
+  group = 'verification'
+  systemProperty 'user.timezone', 'Asia/Singapore'
+  testClassesDirs = sourceSets.integrationTest.output.classesDirs
+  classpath = sourceSets.integrationTest.runtimeClasspath
+  useJUnitPlatform()
+  shouldRunAfter test
+}
+
+check.dependsOn integrationTest
