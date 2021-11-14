@@ -3,6 +3,7 @@ package com.darkhorse.consignmentauction.controller
 import com.darkhorse.consignmentauction.ApiTest
 import com.darkhorse.consignmentauction.exception.AuctionNotCompleteException
 import com.darkhorse.consignmentauction.exception.ConsignmentNotFoundException
+import com.darkhorse.consignmentauction.exception.SystemException
 import com.darkhorse.consignmentauction.service.SettleAccountService
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.jupiter.api.Test
@@ -53,5 +54,19 @@ internal class SettleAccountControllerTest : ApiTest() {
       .statusCode(equalTo(404))
       .body("errorCode", equalTo("CONSIGNMENT_NOT_FOUND"))
       .body("message", equalTo("拍卖委托信息不存在,请确认请求参数是否正确"))
+  }
+
+  @Test
+  fun `should pay auction account failed and with status code is 500 when settle account service raise a SystemException`() {
+    val id = "dummyId"
+    val account = "account"
+    `when`(settleAccountService.payAuctionAccount(id, account)).thenThrow(SystemException())
+
+    given().queryParams(mapOf("account" to account))
+      .post("/consignments/{id}/auction-account-payment/confirmation", mapOf("id" to id))
+      .then()
+      .statusCode(equalTo(500))
+      .body("errorCode", equalTo("SYSTEM_ERROR"))
+      .body("message", equalTo("系统错误，请稍后再试"))
   }
 }
