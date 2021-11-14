@@ -7,6 +7,7 @@ import com.darkhorse.consignmentauction.repository.ConsignmentRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import java.lang.RuntimeException
+import java.math.BigDecimal
 
 @Service
 class SettleAccountService(
@@ -22,12 +23,14 @@ class SettleAccountService(
 
     validate(auction)
 
-    paymentClient.pay(account, auction.price)
+    paymentClient.pay(account, auction!!.price?: throw RuntimeException())
 
   }
 
   private fun validate(auction: Auction?) {
-    if (auction?.status != Auction.Status.COMPLETE) throw RuntimeException()
+    auction ?: throw RuntimeException()
+
+    if (auction.status != Auction.Status.COMPLETE) throw RuntimeException()
 
 
   }

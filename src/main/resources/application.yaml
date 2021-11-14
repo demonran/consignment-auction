@@ -8,3 +8,7 @@ spring:
       leak-detection-threshold: 15000
       connection-test-query: SELECT 1
       max-lifetime: 28700000
+
+application:
+  auction-server:
+    host: http://localhost:1080

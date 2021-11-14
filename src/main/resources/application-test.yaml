@@ -1,0 +1,4 @@
+application:
+  auction-server:
+    host: http://localhost:1080
+
