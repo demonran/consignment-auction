@@ -33,6 +33,7 @@ dependencies {
   testImplementation("io.rest-assured:json-path")
   testImplementation("io.rest-assured:json-schema-validator")
   testImplementation("io.mockk:mockk:1.10.6")
+  testImplementation("org.assertj:assertj-core:3.19.0")
 }
 
 dependencyManagement {
