@@ -1,8 +1,11 @@
 package com.darkhorse.consignmentauction.client
 
 import com.darkhorse.consignmentauction.IntegrationTest
+import com.darkhorse.consignmentauction.exception.ErrorCode
+import com.darkhorse.consignmentauction.exception.SystemException
 import com.google.common.net.MediaType
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
@@ -30,6 +33,9 @@ internal class AuctionClientTest: IntegrationTest() {
 
   @BeforeEach
   fun beforeEach() {
+    if (!server.isRunning) {
+      server = ClientAndServer(1080)
+    }
     server.reset()
   }
 
@@ -38,7 +44,7 @@ internal class AuctionClientTest: IntegrationTest() {
   fun `should return an auction with status with giving status when giving an exist auction id`(status: String) {
     val auctionId = "auctionId"
     server.`when`(HttpRequest.request().withPath("/auction/$auctionId").withMethod("GET"))
-      .respond(HttpResponse.response().withStatusCode(404).withBody(
+      .respond(HttpResponse.response().withStatusCode(200).withBody(
         """{"id":"$auctionId", "status": "$status"}""", MediaType.JSON_UTF_8
       ))
 
@@ -46,6 +52,17 @@ internal class AuctionClientTest: IntegrationTest() {
 
     assertThat(auction).isNotNull
     assertThat(auction?.status).isEqualTo(Auction.Status.valueOf(status))
+  }
+
+
+  @Test
+  fun `should raise a system exception when auction server is stopped`() {
+    val auctionId = "auctionId"
+    server.stop()
+
+    assertThatExceptionOfType(SystemException::class.java)
+      .isThrownBy { auctionClient.queryById(auctionId) }
+      .withMessage(ErrorCode.SYSTEM_ERROR.name)
   }
 
   @Test
