@@ -8,7 +8,7 @@ data class Auction(
   val price: BigDecimal?
 ) {
   enum class Status {
-    ABORTED, PAID, COMPLETE
+    IN_PROGRESS, ABORTED, PAID, COMPLETE
   }
 }
 
