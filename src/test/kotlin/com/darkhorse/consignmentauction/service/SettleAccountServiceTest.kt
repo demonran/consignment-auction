@@ -4,6 +4,7 @@ import com.darkhorse.consignmentauction.client.Auction
 import com.darkhorse.consignmentauction.client.AuctionClient
 import com.darkhorse.consignmentauction.client.PaymentClient
 import com.darkhorse.consignmentauction.exception.AuctionNotCompleteException
+import com.darkhorse.consignmentauction.exception.ConsignmentNotFoundException
 import com.darkhorse.consignmentauction.exception.ErrorCode
 import com.darkhorse.consignmentauction.repository.ConsignmentEntity
 import com.darkhorse.consignmentauction.repository.ConsignmentRepository
@@ -99,6 +100,22 @@ internal class SettleAccountServiceTest {
       .isThrownBy { settleAccountService.payAuctionAccount(id, account) }
       .withMessage(ErrorCode.AUCTION_NOT_COMPLETE.name)
 
+    verify(exactly = 0) { paymentClient.pay(any(), any()) }
+
+  }
+
+  @Test
+  fun `should raise an exception when query consignment return null object`() {
+    val id = "id"
+    val account = "accountNumber"
+
+    every { consignmentRepository.findByIdOrNull(id) } returns null
+
+    Assertions.assertThatExceptionOfType(ConsignmentNotFoundException::class.java)
+      .isThrownBy { settleAccountService.payAuctionAccount(id, account) }
+      .withMessage(ErrorCode.CONSIGNMENT_NOT_FOUND.name)
+
+    verify(exactly = 0) { auctionClient.queryById(any()) }
     verify(exactly = 0) { paymentClient.pay(any(), any()) }
 
   }

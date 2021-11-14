@@ -4,11 +4,10 @@ import com.darkhorse.consignmentauction.client.Auction
 import com.darkhorse.consignmentauction.client.AuctionClient
 import com.darkhorse.consignmentauction.client.PaymentClient
 import com.darkhorse.consignmentauction.exception.AuctionNotCompleteException
+import com.darkhorse.consignmentauction.exception.ConsignmentNotFoundException
 import com.darkhorse.consignmentauction.repository.ConsignmentRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
-import java.lang.RuntimeException
-import java.math.BigDecimal
 
 @Service
 class SettleAccountService(
@@ -18,7 +17,7 @@ class SettleAccountService(
 ) {
   fun payAuctionAccount(id: String, account: String) {
     val consignment = consignmentRepository.findByIdOrNull(id)
-    val auctionId = consignment?.auctionId ?: throw RuntimeException()
+    val auctionId = consignment?.auctionId ?: throw ConsignmentNotFoundException()
 
     val auction = auctionClient.queryById(auctionId)
 

@@ -9,7 +9,7 @@ import java.math.BigDecimal
 class PaymentClient(private val restTemplate: RestTemplate,
                     private val applicationProperties: ApplicationProperties) {
   fun pay(account: String, price: BigDecimal) {
-    val entity = restTemplate.postForEntity(
+    restTemplate.postForEntity(
       applicationProperties.paymentServer.host + "/payment/pay",
       PayApiModel(account, price),
       Unit.javaClass
