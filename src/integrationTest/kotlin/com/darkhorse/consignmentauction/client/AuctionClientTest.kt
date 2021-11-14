@@ -6,6 +6,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
@@ -37,7 +38,7 @@ internal class AuctionClientTest: IntegrationTest() {
   fun `should return an auction with status with giving status when giving an exist auction id`(status: String) {
     val auctionId = "auctionId"
     server.`when`(HttpRequest.request().withPath("/auction/$auctionId").withMethod("GET"))
-      .respond(HttpResponse.response().withStatusCode(200).withBody(
+      .respond(HttpResponse.response().withStatusCode(404).withBody(
         """{"id":"$auctionId", "status": "$status"}""", MediaType.JSON_UTF_8
       ))
 
@@ -45,6 +46,17 @@ internal class AuctionClientTest: IntegrationTest() {
 
     assertThat(auction).isNotNull
     assertThat(auction?.status).isEqualTo(Auction.Status.valueOf(status))
+  }
+
+  @Test
+  fun `should return null auction when remote server return 404`() {
+    val auctionId = "auctionId"
+    server.`when`(HttpRequest.request().withPath("/auction/$auctionId").withMethod("GET"))
+      .respond(HttpResponse.response().withStatusCode(404))
+
+    val auction = auctionClient.queryById(auctionId)
+
+    assertThat(auction).isNull()
   }
 
   @AfterAll
