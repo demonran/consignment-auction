@@ -2,6 +2,7 @@ package com.darkhorse.consignmentauction.controller
 
 import com.darkhorse.consignmentauction.ApiTest
 import com.darkhorse.consignmentauction.IntegrationTest
+import com.darkhorse.consignmentauction.exception.AuctionNotCompleteException
 import com.darkhorse.consignmentauction.service.SettleAccountService
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.jupiter.api.Test
@@ -15,13 +16,28 @@ internal class SettleAccountControllerTest : ApiTest() {
   private lateinit var settleAccountService: SettleAccountService
 
   @Test
-  fun `should pay auction account when auction is complete`() {
+  fun `should pay auction account successful when auction's status is complete`() {
     val id = "dummyId"
     val account = "account"
     doNothing().`when`(settleAccountService).payAuctionAccount(id, account)
+
     given().queryParams(mapOf("account" to account))
       .post("/consignments/{id}/auction-account-payment/confirmation", mapOf("id" to id))
       .then()
       .statusCode(equalTo(200))
+  }
+
+  @Test
+  fun `should pay auction account with error when giving auction's status is PAID`() {
+    val id = "dummyId"
+    val account = "account"
+    `when`(settleAccountService.payAuctionAccount(id, account)).thenThrow(AuctionNotCompleteException())
+
+    given().queryParams(mapOf("account" to account))
+      .post("/consignments/{id}/auction-account-payment/confirmation", mapOf("id" to id))
+      .then()
+      .statusCode(equalTo(400))
+      .body("errorCode", equalTo("AUCTION_NOT_COMPLETE"))
+      .body("message", equalTo("拍品未成交"))
   }
 }
