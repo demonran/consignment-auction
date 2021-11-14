@@ -7,21 +7,18 @@ import com.darkhorse.consignmentauction.exception.AuctionNotCompleteException
 import com.darkhorse.consignmentauction.exception.ErrorCode
 import com.darkhorse.consignmentauction.repository.ConsignmentEntity
 import com.darkhorse.consignmentauction.repository.ConsignmentRepository
-import io.mockk.Runs
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.impl.annotations.SpyK
 import io.mockk.junit5.MockKExtension
-import io.mockk.just
 import io.mockk.justRun
 import io.mockk.verify
 import org.assertj.core.api.Assertions
-import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatNoException
-import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.data.repository.findByIdOrNull
 import java.math.BigDecimal
 
@@ -53,7 +50,11 @@ internal class SettleAccountServiceTest {
     val account = "accountNumber"
 
     every { consignmentRepository.findByIdOrNull(id) } returns ConsignmentEntity(id, auctionId)
-    every { auctionClient.queryById(auctionId) } returns Auction(id = auctionId, status = Auction.Status.COMPLETE, price = price)
+    every { auctionClient.queryById(auctionId) } returns Auction(
+      id = auctionId,
+      status = Auction.Status.COMPLETE,
+      price = price
+    )
     justRun { paymentClient.pay(account, price) }
 
     assertThatNoException().isThrownBy { settleAccountService.payAuctionAccount(id, account) }
@@ -62,19 +63,24 @@ internal class SettleAccountServiceTest {
 
   }
 
-  @Test
-  fun `should pay auction account failed giving an auction's status is PAID`() {
+  @ParameterizedTest
+  @ValueSource(strings = ["ABORTED", "PAID", "COMPLETE"])
+  fun `should pay auction account failed giving an auction's status is the parameter`(status: String) {
     val id = "id"
     val auctionId = "auctionId"
     val price = BigDecimal.valueOf(5000)
     val account = "accountNumber"
 
     every { consignmentRepository.findByIdOrNull(id) } returns ConsignmentEntity(id, auctionId)
-    every { auctionClient.queryById(auctionId) } returns Auction(id = auctionId, status = Auction.Status.PAID, price = price)
+    every { auctionClient.queryById(auctionId) } returns Auction(
+      id = auctionId,
+      status = Auction.Status.valueOf(status),
+      price = price
+    )
     justRun { paymentClient.pay(account, price) }
 
     Assertions.assertThatExceptionOfType(AuctionNotCompleteException::class.java)
-      .isThrownBy{ settleAccountService.payAuctionAccount(id, account) }
+      .isThrownBy { settleAccountService.payAuctionAccount(id, account) }
       .withMessage(ErrorCode.AUCTION_NOT_COMPLETE.name)
 
     verify(exactly = 0) { paymentClient.pay(eq(account), eq(price)) }

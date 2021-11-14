@@ -27,7 +27,7 @@ internal class AuctionClientTest: IntegrationTest() {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = ["PAID", "COMPLETE"])
+  @ValueSource(strings = ["ABORTED", "PAID", "COMPLETE"])
   fun `should return an auction with status with giving status when giving an exist auction id`(status: String) {
     val auctionId = "auctionId"
 
