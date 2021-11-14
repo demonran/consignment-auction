@@ -3,6 +3,7 @@ package com.darkhorse.consignmentauction.service
 import com.darkhorse.consignmentauction.client.Auction
 import com.darkhorse.consignmentauction.client.AuctionClient
 import com.darkhorse.consignmentauction.client.PaymentClient
+import com.darkhorse.consignmentauction.exception.AuctionNotCompleteException
 import com.darkhorse.consignmentauction.repository.ConsignmentRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -30,7 +31,7 @@ class SettleAccountService(
   private fun validate(auction: Auction?) {
     auction ?: throw RuntimeException()
 
-    if (auction.status != Auction.Status.COMPLETE) throw RuntimeException()
+    if (auction.status != Auction.Status.COMPLETE) throw AuctionNotCompleteException()
 
 
   }
