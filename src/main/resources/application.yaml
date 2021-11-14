@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/consignment_db?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    name: consignment_db
+    username: root
+    password: password
+    hikari:
+      leak-detection-threshold: 15000
+      connection-test-query: SELECT 1
+      max-lifetime: 28700000

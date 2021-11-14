@@ -1,5 +1,6 @@
 package com.darkhorse.consignmentauction.controller
 
+import com.darkhorse.consignmentauction.ApiTest
 import com.darkhorse.consignmentauction.IntegrationTest
 import com.darkhorse.consignmentauction.service.EvaluateDto
 import com.darkhorse.consignmentauction.service.EvaluateService
@@ -8,7 +9,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mockito.`when`
 import org.springframework.boot.test.mock.mockito.MockBean
 
-class EvaluationControllerTest: IntegrationTest() {
+class EvaluationControllerTest: ApiTest() {
 
   @MockBean
   private lateinit var evaluateService: EvaluateService
