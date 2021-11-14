@@ -29,7 +29,7 @@ class SettleAccountService(
   }
 
   private fun validate(auction: Auction?) {
-    auction ?: throw RuntimeException()
+    auction ?: throw AuctionNotCompleteException()
 
     if (auction.status != Auction.Status.COMPLETE) throw AuctionNotCompleteException()
 

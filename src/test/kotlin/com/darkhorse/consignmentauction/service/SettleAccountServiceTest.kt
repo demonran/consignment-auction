@@ -77,13 +77,29 @@ internal class SettleAccountServiceTest {
       status = Auction.Status.valueOf(status),
       price = price
     )
-    justRun { paymentClient.pay(account, price) }
 
     Assertions.assertThatExceptionOfType(AuctionNotCompleteException::class.java)
       .isThrownBy { settleAccountService.payAuctionAccount(id, account) }
       .withMessage(ErrorCode.AUCTION_NOT_COMPLETE.name)
 
-    verify(exactly = 0) { paymentClient.pay(eq(account), eq(price)) }
+    verify(exactly = 0) { paymentClient.pay(any(), any()) }
+
+  }
+
+  @Test
+  fun `should raise an exception when call payAuctionAccount giving a null auction when query from auctionClient`() {
+    val id = "id"
+    val auctionId = "auctionId"
+    val account = "accountNumber"
+
+    every { consignmentRepository.findByIdOrNull(id) } returns ConsignmentEntity(id, auctionId)
+    every { auctionClient.queryById(auctionId) } returns null
+
+    Assertions.assertThatExceptionOfType(AuctionNotCompleteException::class.java)
+      .isThrownBy { settleAccountService.payAuctionAccount(id, account) }
+      .withMessage(ErrorCode.AUCTION_NOT_COMPLETE.name)
+
+    verify(exactly = 0) { paymentClient.pay(any(), any()) }
 
   }
 }
