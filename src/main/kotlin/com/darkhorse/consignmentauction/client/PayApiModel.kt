@@ -4,4 +4,6 @@ import java.math.BigDecimal
 
 data class PayApiModel(
   val account: String,
-  val price: BigDecimal)
+  val price: BigDecimal,
+  val channel: String
+)

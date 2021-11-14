@@ -50,6 +50,7 @@ internal class SettleAccountServiceTest {
     val auctionId = "auctionId"
     val price = BigDecimal.valueOf(5000)
     val account = "accountNumber"
+    val channel = "WECHAT"
 
     every { consignmentRepository.findByIdOrNull(id) } returns ConsignmentEntity(id, auctionId)
     every { auctionClient.queryById(auctionId) } returns Auction(
@@ -57,11 +58,11 @@ internal class SettleAccountServiceTest {
       status = Auction.Status.COMPLETE,
       price = price
     )
-    justRun { paymentClient.pay(account, price) }
+    justRun { paymentClient.pay(account, price, channel) }
 
     assertThatNoException().isThrownBy { settleAccountService.payAuctionAccount(id, account) }
 
-    verify { paymentClient.pay(eq(account), eq(price)) }
+    verify { paymentClient.pay(eq(account), eq(price), eq(channel)) }
 
   }
 
@@ -84,7 +85,7 @@ internal class SettleAccountServiceTest {
       .isThrownBy { settleAccountService.payAuctionAccount(id, account) }
       .withMessage(ErrorCode.AUCTION_NOT_COMPLETE.name)
 
-    verify(exactly = 0) { paymentClient.pay(any(), any()) }
+    verify(exactly = 0) { paymentClient.pay(any(), any(), any()) }
 
   }
 
@@ -101,7 +102,7 @@ internal class SettleAccountServiceTest {
       .isThrownBy { settleAccountService.payAuctionAccount(id, account) }
       .withMessage(ErrorCode.AUCTION_NOT_COMPLETE.name)
 
-    verify(exactly = 0) { paymentClient.pay(any(), any()) }
+    verify(exactly = 0) { paymentClient.pay(any(), any(), any()) }
 
   }
 
@@ -117,7 +118,7 @@ internal class SettleAccountServiceTest {
       .withMessage(ErrorCode.CONSIGNMENT_NOT_FOUND.name)
 
     verify(exactly = 0) { auctionClient.queryById(any()) }
-    verify(exactly = 0) { paymentClient.pay(any(), any()) }
+    verify(exactly = 0) { paymentClient.pay(any(), any(), any()) }
 
   }
 
@@ -135,7 +136,7 @@ internal class SettleAccountServiceTest {
       .withMessage(ErrorCode.SYSTEM_ERROR.name)
 
     verify(exactly = 1) { auctionClient.queryById(eq(auctionId)) }
-    verify(exactly = 0) { paymentClient.pay(any(), any()) }
+    verify(exactly = 0) { paymentClient.pay(any(), any(), any()) }
 
   }
 }

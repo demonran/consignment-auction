@@ -39,7 +39,7 @@ internal class PaymentClientTest: IntegrationTest() {
     server.`when`(HttpRequest.request().withPath("/payment/pay").withMethod("POST"))
       .respond(HttpResponse.response().withStatusCode(200))
 
-    assertThatNoException().isThrownBy { paymentClient.pay(account, price) }
+    assertThatNoException().isThrownBy { paymentClient.pay(account, price, "WECHAT") }
 
   }
 

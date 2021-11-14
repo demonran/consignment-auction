@@ -8,6 +8,8 @@ import com.darkhorse.consignmentauction.exception.ConsignmentNotFoundException
 import com.darkhorse.consignmentauction.repository.ConsignmentRepository
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import java.lang.RuntimeException
+import java.math.BigDecimal
 
 @Service
 class SettleAccountService(
@@ -23,7 +25,7 @@ class SettleAccountService(
 
     validate(auction)
 
-    paymentClient.pay(account, auction!!.price?: throw RuntimeException())
+    paymentClient.pay(account, auction!!.price?: throw RuntimeException(), "WECHAT")
 
   }
 
