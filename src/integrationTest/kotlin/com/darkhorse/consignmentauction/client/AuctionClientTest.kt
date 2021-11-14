@@ -6,6 +6,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import org.mockserver.integration.ClientAndServer
 import org.mockserver.model.HttpRequest
 import org.mockserver.model.HttpResponse
@@ -24,20 +26,19 @@ internal class AuctionClientTest: IntegrationTest() {
     server = ClientAndServer(1080)
   }
 
-  @Test
-  fun `should return an auction when giving an exist auction id`() {
-
-
+  @ParameterizedTest
+  @ValueSource(strings = ["PAID", "COMPLETE"])
+  fun `should return an auction with status with giving status when giving an exist auction id`(status: String) {
     val auctionId = "auctionId"
 
     server.`when`(HttpRequest.request().withPath("/auction/$auctionId").withMethod("GET"))
       .respond(HttpResponse.response().withStatusCode(200).withBody(
-        """{"id":"$auctionId", "status": "COMPLETE"}""", MediaType.JSON_UTF_8
+        """{"id":"$auctionId", "status": "$status"}""", MediaType.JSON_UTF_8
       ))
 
     val auction = auctionClient.queryById(auctionId)
 
-
-    assertThat(auction?.status).isEqualTo(Auction.Status.COMPLETE)
+    assertThat(auction).isNotNull
+    assertThat(auction?.status).isEqualTo(Auction.Status.valueOf(status))
   }
 }
