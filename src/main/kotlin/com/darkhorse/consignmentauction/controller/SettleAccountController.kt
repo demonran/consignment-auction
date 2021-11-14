@@ -12,7 +12,7 @@ class SettleAccountController(private val settleAccountService: SettleAccountSer
 
 
   @PostMapping("{id}/auction-account-payment/confirmation")
-  fun payAuctionAccount(@PathVariable id:String) {
-    settleAccountService.payAuctionAccount(id)
+  fun payAuctionAccount(@PathVariable id:String, account: String) {
+    settleAccountService.payAuctionAccount(id, account)
   }
 }
