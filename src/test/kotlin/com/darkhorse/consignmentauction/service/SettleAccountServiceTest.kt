@@ -6,6 +6,7 @@ import com.darkhorse.consignmentauction.client.PaymentClient
 import com.darkhorse.consignmentauction.exception.AuctionNotCompleteException
 import com.darkhorse.consignmentauction.exception.ConsignmentNotFoundException
 import com.darkhorse.consignmentauction.exception.ErrorCode
+import com.darkhorse.consignmentauction.exception.SystemException
 import com.darkhorse.consignmentauction.repository.ConsignmentEntity
 import com.darkhorse.consignmentauction.repository.ConsignmentRepository
 import io.mockk.every
@@ -116,6 +117,24 @@ internal class SettleAccountServiceTest {
       .withMessage(ErrorCode.CONSIGNMENT_NOT_FOUND.name)
 
     verify(exactly = 0) { auctionClient.queryById(any()) }
+    verify(exactly = 0) { paymentClient.pay(any(), any()) }
+
+  }
+
+  @Test
+  fun `should raise an exception when call auctionClient's queryById raise an excepiotn`() {
+    val id = "id"
+    val auctionId = "auctionId"
+    val account = "accountNumber"
+
+    every { consignmentRepository.findByIdOrNull(id) } returns ConsignmentEntity(id, auctionId)
+    every { auctionClient.queryById(auctionId) } throws SystemException()
+
+    Assertions.assertThatExceptionOfType(SystemException::class.java)
+      .isThrownBy { settleAccountService.payAuctionAccount(id, account) }
+      .withMessage(ErrorCode.SYSTEM_ERROR.name)
+
+    verify(exactly = 1) { auctionClient.queryById(eq(auctionId)) }
     verify(exactly = 0) { paymentClient.pay(any(), any()) }
 
   }
