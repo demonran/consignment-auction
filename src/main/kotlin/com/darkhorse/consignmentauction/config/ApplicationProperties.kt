@@ -5,7 +5,10 @@ import org.springframework.boot.context.properties.ConstructorBinding
 
 @ConstructorBinding
 @ConfigurationProperties(prefix = "application")
-data class ApplicationProperties(val auctionServer: AuctionServer) {
+data class ApplicationProperties(val auctionServer: AuctionServer,
+                                 val paymentServer: PaymentServer) {
 
   data class AuctionServer(val host: String)
+
+  data class PaymentServer(val host: String)
 }

@@ -1,4 +1,6 @@
 application:
   auction-server:
     host: http://localhost:1080
+  payment-server:
+    host: http://localhost:1080
 
