@@ -19,7 +19,7 @@ class ConsignmentRepositoryTest: IntegrationTest(){
     val auctionId = "auctionId"
     val consignment = consignmentRepository.findByIdOrNull(id)
 
-    assertThat(consignment).isNull()
+    assertThat(consignment).isNotNull
     assertThat(consignment?.id).isEqualTo(id)
     assertThat(consignment?.auctionId).isEqualTo(auctionId)
   }

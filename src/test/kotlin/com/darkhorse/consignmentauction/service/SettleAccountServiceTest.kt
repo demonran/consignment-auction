@@ -64,7 +64,7 @@ internal class SettleAccountServiceTest {
   }
 
   @ParameterizedTest
-  @ValueSource(strings = ["IN_PROGRESS", "ABORTED", "PAID", "COMPLETE"])
+  @ValueSource(strings = ["CREATED", "IN_PROGRESS", "ABORTED", "PAID"])
   fun `should pay auction account failed giving an auction's status is the parameter`(status: String) {
     val id = "id"
     val auctionId = "auctionId"

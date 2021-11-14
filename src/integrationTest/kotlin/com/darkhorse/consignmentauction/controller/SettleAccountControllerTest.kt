@@ -1,7 +1,6 @@
 package com.darkhorse.consignmentauction.controller
 
 import com.darkhorse.consignmentauction.ApiTest
-import com.darkhorse.consignmentauction.IntegrationTest
 import com.darkhorse.consignmentauction.exception.AuctionNotCompleteException
 import com.darkhorse.consignmentauction.service.SettleAccountService
 import org.hamcrest.CoreMatchers.equalTo
@@ -28,7 +27,7 @@ internal class SettleAccountControllerTest : ApiTest() {
   }
 
   @Test
-  fun `should pay auction account with error when giving auction's status is PAID`() {
+  fun `should pay auction account failed and with status code is 400 when settle account service raise an exception`(status: String) {
     val id = "dummyId"
     val account = "account"
     `when`(settleAccountService.payAuctionAccount(id, account)).thenThrow(AuctionNotCompleteException())
